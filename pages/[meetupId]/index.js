@@ -33,6 +33,8 @@ export async function getStaticPaths() {
   client.close();
   return {
     //must include fallback key that tells next if it include all values or just some of them
+    //true generates page even if page doesnt have data
+    //blocking user wont see anything until page is pregenerated
     fallback: 'blocking',
     //must fetch and return all possible ids
     paths: meetups.map((meetup) => ({
