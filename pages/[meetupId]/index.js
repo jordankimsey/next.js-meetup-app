@@ -1,14 +1,14 @@
-import {MongoClient, ObjectId} from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import MeetupDetail from '../../components/meetups/MeetupDetail';
-import Head from 'next/head'
+import Head from 'next/head';
 
 function MeetupDetails(props) {
   return (
     <>
-    <Head>
-      <title>{props.meetupData.title}</title>
-      <meta name='description' content={props.meetupData.description}/>
-    </Head>
+      <Head>
+        <title>{props.meetupData.title}</title>
+        <meta name='description' content={props.meetupData.description} />
+      </Head>
       <MeetupDetail
         image={props.meetupData.image}
         title={props.meetupData.title}
@@ -17,9 +17,9 @@ function MeetupDetails(props) {
       />
     </>
   );
-};
+}
 
-//must add getStaticPaths if using getStaticProps inside page component file if its dynamic 
+//must add getStaticPaths if using getStaticProps inside page component file if its dynamic
 //not needed if using getServerSideProps
 //next needs to know to prebuild all pages with the supported id because its dynamic
 //if user enters id thats not pre generated user will see 404 error
@@ -29,18 +29,17 @@ export async function getStaticPaths() {
   );
   const db = client.db();
   const meetupsCollection = db.collection('meetups');
-  const meetups = await meetupsCollection.find({}, {_id: 1}).toArray();
+  const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
   client.close();
   return {
     //must include fallback key that tells next if it include all values or just some of them
-    fallback: false,
+    fallback: 'blocking',
     //must fetch and return all possible ids
     paths: meetups.map((meetup) => ({
-      params: {meetupId: meetup._id.toString()},
-    })),     
+      params: { meetupId: meetup._id.toString() },
+    })),
   };
 }
-
 
 export async function getStaticProps(context) {
   //cannot use useRouter to access meetupid to fetch
@@ -52,7 +51,9 @@ export async function getStaticProps(context) {
   );
   const db = client.db();
   const meetupsCollection = db.collection('meetups');
-  const selectedMeetup = await meetupsCollection.findOne({_id: ObjectId(meetupId)});
+  const selectedMeetup = await meetupsCollection.findOne({
+    _id: ObjectId(meetupId),
+  });
   client.close();
   return {
     props: {
@@ -61,7 +62,7 @@ export async function getStaticProps(context) {
         title: selectedMeetup.title,
         address: selectedMeetup.address,
         image: selectedMeetup.image,
-        description: selectedMeetup.description
+        description: selectedMeetup.description,
       },
     },
   };
